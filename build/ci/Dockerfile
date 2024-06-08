@@ -3,8 +3,6 @@
 # Use latest golang base image
 FROM golang:latest as build-env
 
-ARG ENV_FILE=.env.example
-
 # Set the current working directory & copy source to it inside the container
 WORKDIR /app
 
@@ -14,7 +12,6 @@ COPY go.mod .
 COPY go.sum .
 RUN go mod download
 
-COPY ${ENV_FILE} .env
 COPY . .
 
 # Build the binary

@@ -1,12 +1,20 @@
 package main
 
 import (
+	"log/slog"
 	"net/http"
+	"os"
 	"strconv"
 
+	"github.com/kelseyhightower/envconfig"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
+
+type Specification struct {
+	Port    string `default:"9450"`
+	Version string `required:"true"`
+}
 
 type Item struct {
 	Id       int64  `json:"id"`
@@ -22,6 +30,18 @@ var (
 )
 
 func main() {
+	// Logger
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+	slog.SetDefault(logger)
+
+	// Load env vars
+	var s Specification
+	err := envconfig.Process("", &s)
+	if err != nil {
+		slog.Error("Failed to process env var", "error", err)
+		os.Exit(1)
+	}
+
 	e := echo.New()
 
 	// Middleware
@@ -43,7 +63,7 @@ func main() {
 	e.DELETE("/items/:id", deleteItem)
 
 	// Start server
-	e.Logger.Fatal(e.Start(":1323"))
+	e.Logger.Fatal(e.Start(":9450"))
 }
 
 //----------
